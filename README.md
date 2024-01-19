@@ -8,6 +8,6 @@ All content on the `main` branch is automatically deployed to [dukerobotics.gith
 
 ## Contributing
 
-To contribute to this wiki, first create a new branch or switch to an existing one other than `main`. Then, create a new markdown file or edit an existing file. When you are done, merge your changes into `main` and they will be automatically deployed to the website.
+To contribute to this wiki, first create a new branch or switch to an existing one other than `main`. Then, create a new markdown file or edit an existing file. When you are done, open a pull request.
 
-Please refrain from committing directly to `main` except for immediate changes. Please consult a club officer before making any major changes to the site.
+Consult a club lead before merging pull requests. Although pull request approvals are not strictly required, your subteam lead may want to review your changes before they are merged.

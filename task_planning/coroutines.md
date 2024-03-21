@@ -52,6 +52,8 @@ However, if you implemented this program using a coroutine, you could insert a r
 
 This also means that any program written using coroutines can, in theory, be written using regular synchronous code, and would behave identically. However, using coroutines can make the program far easier to write and maintain.
 
+In the intuitive example above, you _never_ perform multiple tasks at the same time. You only ever perform one task at a time. However, you switch between tasks very quickly, so it _seems_ like you are doing multiple things at once. You don't waste any time waiting for something to happen. This is the essence of concurrency.
+
 In the technical example above, you could create a new thread for each insert request – using parallelism – and achieve the same result. However, if we're inserting thousands of rows per second, this would create thousands of threads, which would be very inefficient as threads come with overhead. Using coroutines, however, we incur far less overhead.
 
 ## Generators
@@ -320,11 +322,13 @@ The `async` keyword is placed before `def` to define a coroutine, and the `await
 
 > [!NOTE]
 > Now, when we say "coroutine", we are referring to a function defined with `async def`, _not_ generator-based coroutines. When an `async` function is called, it returns a coroutine object, _not_ a generator object.
+>
+> In other words, even though it is still possible to define coroutines using generators, _native_ Python coroutines are defined using `async def`.
 
-An Awaitable object is an object that can be used in an `await` expression. It can be a coroutine or an object that implements the `__await__` method. The `__await__` method must return an iterator
+An Awaitable object is an object that can be used in an `await` expression. It can be a coroutine or an object that implements the `__await__` method. The `__await__` method must return an iterator.
 
 > [!ATTENTION]
 > If you use `yield` inside a function defined with `async`, the function is **not** a coroutine. It is an _asynchronous generator_. This is a different concept that is not covered in this article and is not used in the task planning system for the robot.
 >
-> To `yield` inside a coroutine, you must `await` an Awaitable object that uses `yield`.
+> To pause a coroutine and provide a value to the parent, you must `await` an Awaitable object that uses `yield`.
 

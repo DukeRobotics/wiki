@@ -1,16 +1,6 @@
-# General
-* [Home](/)
+- General
+    - [Home](/)
 
-# Software
-* Task Planning
-    * [Coroutines](task_planning/coroutines.md)
-
-### GUI
-
-
-### Sensors
-
-
-# Mechanical
-
-# Electrical
+- Software
+    - Task Planning
+        - [Coroutines](task_planning/coroutines.md)

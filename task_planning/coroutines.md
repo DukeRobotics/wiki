@@ -10,6 +10,9 @@ The following content is inspired heavily by the following articles. Many of the
 - [_From yield to async/await_ by mleue](https://mleue.com/posts/yield-to-async-await)
 - [_How the heck does async/await work in Python 3.5?_ by Brett Cannon](https://snarky.ca/how-the-heck-does-async-await-work-in-python-3-5/)
 
+> [!NOTE]
+> While an introduction to coroutines in Python is typically paired with an introduction to `asyncio`, use of `asyncio` is _not required_ to use coroutines in Python. In fact, the `asyncio` library is _not_ used in the task planning system for the robot and is _not_ covered in this article.
+
 ## What is a Coroutine?
 
 A coroutine is a function that can pause and resume its execution. This is useful for writing concurrent code, where you want to be able to do something else while waiting for some operation to complete, or to periodically yield control back to its parent.
@@ -43,13 +46,15 @@ However, if you implemented this program using a coroutine, you could insert a r
 > [!ATTENTION]
 > Coroutines allow for _concurrent_ programming, not _parallelism_. This means that coroutines are useful for writing code that switches between multiple tasks, but does not perform at the same time. For example, a coroutine can pause execution while waiting for a file to be read, and during that time, another coroutine can do something else. However, the coroutine cannot read the file and do something else at the same time.
 >
-> Parallelism, on the other hand, is the ability to do multiple things at the same time. This is typically achieved using multiple threads or processes, whereby multiple computations are performed in the same instant on multiple cores or processors. _Coroutines are not used for parallelism_.
+> Parallelism, on the other hand, is the ability to do multiple things at the same time. This is typically achieved using multiple threads or processes, whereby multiple computations are performed in the same instant on multiple cores or processors. Parallelism is _not_ used in the task planning system for the robot.
 >
 > See [this](https://go.dev/blog/waza-talk) for a more in-depth explanation of the difference between concurrency and parallelism.
 
 This also means that any program written using coroutines can, in theory, be written using regular synchronous code, and would behave identically. However, using coroutines can make the program far easier to write and maintain.
 
-## In the Beginning, There Were Generators...
+In the technical example above, you could create a new thread for each insert request – using parallelism – and achieve the same result. However, if we're inserting thousands of rows per second, this would create thousands of threads, which would be very inefficient as threads come with overhead. Using coroutines, however, we incur far less overhead.
+
+## Generators
 
 The history of coroutines in Python is a bit messy. There was not a single moment when coroutine were introduced, but rather a series of incremental changes to the language that together made coroutines possible.
 
@@ -172,7 +177,7 @@ We can call the `next` function on this generator as many times as we want, and 
 
 Generators' ability to pause and resume their execution makes them a possible way to implement coroutines. However, they don't provide a way to send values to the generator when it is resumed, and they don't provide a way for the generator to return a value to the caller when it yields control... _yet_.
 
-## Full-Fleged Generator-Based Coroutines
+## Generator-Based Coroutines
 
 The next step towards coroutines was the introduction of the `send` method to generators in Python 2.5. This method allows you to send a value to a generator when it is resumed.
 
@@ -205,5 +210,121 @@ Calling `next` on the generator is equivalent to calling `send(None)`.
 > [!NOTE]
 > The first value sent into a generator _must_ be `None`. This is because the generator must begin execution and `yield` before it can receive a non-`None` value.
 
+The addition of the `send` method to generators made it possible to implement coroutines using generators. Here's a generator-based implementation of the [technical example](#technical-example) from earlier:
+
+```python
+def insert_into_database(row):
+    db = get_database_connection()
+    db.insert(row)
+    response = db.get_response()
+
+    # Yield the response to the parent while waiting for the database to respond
+    while True:
+        yield response
+        response = db.get_response()
+        if response.status != "pending":
+            break
+
+    if response.status == "success":
+        # The database has responded with a success status
+        print("success")
+    else:
+        # The database has responded with a failure status
+        print("failure")
+
+    db.close()
+
+rows = [row1, row2, row3, ...]
+coroutines = [insert_into_database(row) for row in rows]
+responses = [next(coroutine) for coroutine in coroutines]
+completed_coroutines = 0
+
+while completed_coroutines < len(coroutines):
+    for i, coroutine in enumerate(coroutines):
+        if responses[i]:
+            try:
+                responses[i] = coroutine.send(None)
+            except StopIteration:
+                responses[i] = None
+                completed_coroutines += 1
+```
+
+This code creates a coroutine for each row that needs to be inserted into the database. It then calls `next` on each coroutine to start them, whereby each coroutine sends the insert request to the database. It then enters a loop that continues until all of the coroutines have finished. Each time through the loop, it calls `send` on each coroutine to resume it. If the coroutine is still waiting for the database to respond, it yields the pending response to the parent. If the database has responded, the coroutine processes the response and closes the database connection, resulting in a StopIteration exception. The exception is caught and the number of completed coroutines is incremented. The loop continues until all of the coroutines have finished.
+
+Even though we could now create coroutines in Python, there was no easy way to nest coroutines, and there was no way to return a final value from a coroutine when it was exhausted... _yet_.
+
+### `yield from` and `return`
+
+Python 3.3 introduced the `yield from` expression, which made it possible to delegate the execution of a generator to another generator. This made it possible to nest coroutines in a more natural way.
+
+If a parent coroutine delegates the execution of a child coroutine to another coroutine using the `yield from` expression, the parent coroutine will pause and resume whenever the child coroutine pauses and resumes. Any values that the child coroutine yields will be passed to the parent's caller, and any values that the parent's caller sends to the parent will be passed to the child coroutine. When the child coroutine is exhausted, the parent coroutine will resume execution after the `yield from` expression. The StopIteration exception will _not_ be raised in the parent; it will be caught automatically by the `yield from` expression.
+
+Python 3.3 also introduced the `return` statement to generators, which made it possible to return a final value from a coroutine when it was exhausted.
+
+Consider the following example:
+
+```python
+def insert_into_database(row):
+    db = get_database_connection()
+    ... # Same as previous
+    db.close()
+    return response
+
+def select_from_database(query):
+    db = get_database_connection()
+    db.select(query)
+    response = db.get_response()
+
+    # Yield the response to the parent while waiting for the database to respond
+    while True:
+        yield response
+        response = db.get_response()
+        if response.status != "pending":
+            break
+
+    if response.status == "success":
+        # The database has responded with a success status
+        print("success")
+    else:
+        # The database has responded with a failure status
+        print("failure")
+
+    db.close()
+    return response
+
+def insert_and_select_from_database(row, query):
+    insert_response = yield from insert_into_database(row)
+    select_response = yield from select_from_database(query)
+    return insert_response, select_response
+```
+
+Here, `insert_and_select_from_database` is the parent coroutine that inserts a row into the database and performs a select query. It does this by delegating the insertion to `insert_into_database` and selection to `select_from_database`, using the `yield from` expression. When the child coroutines are exahusted, they return their final responses to the parent coroutine, which returns both.
+
+The event loop that drives the program performing insertions and selects can be written in almost exactly the same way as the event loop that drives the program performing insertions only. This is possible because yielded values automatically propagate up to the event loop, and sent values automatically propagate down to `insert_into_database` and `select_from_database`; they don't get stuck in `insert_and_select_from_database`.
+
+```python
+rows = [row1, row2, row3, ...]
+queries = [query1, query2, query3, ...]
+coroutines = [insert_and_select_from_database(row, query)
+                for row, query in zip(rows, queries)]
+... # Same as previous
+```
+
+While generators now offer all the features needed to implement coroutines, the syntax for using them is a bit messy. There's no way to tell if a function is a coroutine just by looking at its definition, and `yield from` combines two keywords into one expression, which can be confusing, ... _yet_.
+
+## `async` and `await`
+
+Python 3.5 introduced the `async` and `await` keywords, which made it possible to write coroutines using much cleaner syntax and made coroutines first-class citizens in the language.
+
+The `async` keyword is placed before `def` to define a coroutine, and the `await` keyword is used to delegate execution to another coroutine or Awaitable object.
+
 > [!NOTE]
-> While an introduction to coroutines in Python is typically paired with an introduction to `asyncio`, use of `asyncio` is _not required_ to use coroutines in Python. In fact, the `asyncio` library is _not_ used in the task planning system for the robot.
+> Now, when we say "coroutine", we are referring to a function defined with `async def`, _not_ generator-based coroutines. When an `async` function is called, it returns a coroutine object, _not_ a generator object.
+
+An Awaitable object is an object that can be used in an `await` expression. It can be a coroutine or an object that implements the `__await__` method. The `__await__` method must return an iterator
+
+> [!ATTENTION]
+> If you use `yield` inside a function defined with `async`, the function is **not** a coroutine. It is an _asynchronous generator_. This is a different concept that is not covered in this article and is not used in the task planning system for the robot.
+>
+> To `yield` inside a coroutine, you must `await` an Awaitable object that uses `yield`.
+

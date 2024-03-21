@@ -328,7 +328,105 @@ The `async` keyword is placed before `def` to define a coroutine, and the `await
 An Awaitable object is an object that can be used in an `await` expression. It can be a coroutine or an object that implements the `__await__` method. The `__await__` method must return an iterator.
 
 > [!ATTENTION]
-> If you use `yield` inside a function defined with `async`, the function is **not** a coroutine. It is an _asynchronous generator_. This is a different concept that is not covered in this article and is not used in the task planning system for the robot.
+> If you use `yield` inside a function defined with `async`, the function is **not** a coroutine. It is an _asynchronous generator_. This is a different object that is not covered in this article and is not used in the task planning system for the robot.
 >
 > To pause a coroutine and provide a value to the parent, you must `await` an Awaitable object that uses `yield`.
 
+You can `return` a value from an `async` function. You can also call `send` on an `async` function to resume it when paused and send it a value. However, you cannot call `next` on an `async` function, as it is not a generator.
+
+Let's see our database example using `async` and `await`:
+
+```python
+YieldType = TypeVar("YieldType")
+SendType = TypeVar("SendType")
+class Yield(Generic[YieldType, SendType]):
+    """
+    An awaitable class that can be used to pause a coroutine and provide a value to the parent.
+    """
+    def __init__(self, value: YieldType = None):
+        self.value = value
+
+    def __await__(self) -> Generator[YieldType, SendType, SendType]:
+        return (yield self.value)
+
+async def insert_into_database(row):
+    db = get_database_connection()
+    db.insert(row)
+    response = db.get_response()
+
+    # Yield the response to the parent while waiting for the database to respond
+    while True:
+        await Yield(response)
+        response = db.get_response()
+        if response.status != "pending":
+            break
+
+    if response.status == "success":
+        # The database has responded with a success status
+        print("success")
+    else:
+        # The database has responded with a failure status
+        print("failure")
+
+    db.close()
+
+async def select_from_database(query):
+    db = get_database_connection()
+    db.select(query)
+    response = db.get_response()
+
+    # Yield the response to the parent while waiting for the database to respond
+    while True:
+        await Yield(response)
+        response = db.get_response()
+        if response.status != "pending":
+            break
+
+    if response.status == "success":
+        # The database has responded with a success status
+        print("success")
+    else:
+        # The database has responded with a failure status
+        print("failure")
+
+    db.close()
+    return response
+
+async def insert_and_select_from_database(row, query):
+    insert_response = await insert_into_database(row)
+    select_response = await select_from_database(query)
+    return insert_response, select_response
+
+rows = [row1, row2, row3, ...]
+coroutines = [insert_into_database(row) for row in rows]
+responses = [next(coroutine) for coroutine in coroutines]
+completed_coroutines = 0
+
+while completed_coroutines < len(coroutines):
+    for i, coroutine in enumerate(coroutines):
+        if responses[i]:
+            try:
+                responses[i] = coroutine.send(None)
+            except StopIteration:
+                responses[i] = None
+                completed_coroutines += 1
+```
+
+This code is almost identical to the previous code, but it uses `async def` instead of `def`, `await` instead of `yield from`, and `await Yield(yield_value)` instead of `yield yield_value`.
+
+The `Yield` class is an Awaitable object that can be used to pause a coroutine and provide a value to the parent. It is used in place of the `yield` keyword, which is not allowed in an `async` coroutine as mentioned earlier.
+
+> [!NOTE]
+> The `Yield` class is _not_ a built-in class. It is a class we have defined that is used in the task planning system of the robot.
+
+## Summary
+
+Coroutines are a powerful tool for writing concurrent code in Python. They are functions that can pause and resume their execution, and they are used extensively in the task planning system for the robot.
+
+The introduction of generators in Python 2.2 was the first step towards coroutines. Generators are a special kind of function that can pause and resume their execution. They are distinguished from traditional functions by their use of `yield` in the function body. `yield` is used to pause the function and return a value to the caller. When the function is resumed, it continues from where it left off.
+
+The introduction of the `send` method to generators in Python 2.5 made it possible to implement coroutines using generators. This method allows you to send a value to a generator when it is resumed.
+
+The introduction of the `yield from` expression and `return` statement to generators in Python 3.3 made it possible to nest coroutines in a more natural way and return a final value from a coroutine when it was exhausted.
+
+The introduction of the `async` and `await` keywords in Python 3.5 made it possible to write coroutines using much cleaner syntax and made coroutines first-class citizens in the language. The `async` keyword is placed before `def` to define a coroutine, and the `await` keyword is used to delegate execution to another coroutine or Awaitable object. Yielding a value to the parent is done using an Awaitable object that uses `await`.

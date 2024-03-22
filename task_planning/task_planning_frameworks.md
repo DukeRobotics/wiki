@@ -1,7 +1,7 @@
 # Task Planning Frameworks
-This is a cautionary tale about some the different task planning frameworks we've tried. If you are ever considering adopting a new framework, review this first and consider if you're treading the same ground here. This covers the 3 task planning frameworks we've used while I've been on this club.
+This is a cautionary tale about some the different task planning frameworks we've tried. If you are ever considering adopting a new framework, review this first and consider if you're treading the same ground here. This covers the three task planning frameworks we've used between 2020-2024.
 
-## Home-grown Task System
+## Homegrown Task System
 The first of these three was mostly created by members of the team and centered around a basic [`Task`](https://github.com/DukeRobotics/robosub-ros/blob/c0a74e1f9032f63046a9f0f660616d0d40624bfe/onboard/catkin_ws/src/task_planning/scripts/task.py) class. Tasks would override the `_on_task_start()` and `_on_task_run()` methods to do initialization and update work respectively. The `_on_task_run()` method was intended to be generally non-blocking. This meant that any state had to be stored as members of the task object.
 
 To composite our smaller tasks into larger tasks, we had ["combination tasks"](https://github.com/DukeRobotics/robosub-ros/blob/c0a74e1f9032f63046a9f0f660616d0d40624bfe/onboard/catkin_ws/src/task_planning/scripts/combination_tasks.py), which were tasks taking in other tasks to do common things like run several tasks at the same time and exit if any finish. These were useful, but probably could be better stated as plain code.
@@ -25,17 +25,20 @@ When selecting SMACH, our intention was to allow tasks to block, then use SMACH'
 - Passing data between states was only done using a `userdata` object, which required any read or written values to be declared in the state initialization.
 - Repeatedly cycling through a task had somewhat unpredictable timing, which might have interacted weirdly with our current controls system (requiring a specific rate).
 
-Competition that year was done without any task planning framework and in an [extremely rushed manner](https://github.com/DukeRobotics/robosub-ros/blob/4e0026a654cca2771290437654766553a2ee3eed/onboard/catkin_ws/src/controls/scripts/comp_2023.py). This was not purely SMACH's fault, but we were having some confusing issues and wanted to cut out the parts we were uncertain about.
+RoboSub 2023 was done without any task planning framework. Instead, all task planning code was put into [one large file](https://github.com/DukeRobotics/robosub-ros/blob/4e0026a654cca2771290437654766553a2ee3eed/onboard/catkin_ws/src/controls/scripts/comp_2023.py). This was not purely SMACH's fault, but didn't have the time to debug the issues we were having with it at competition and fell back to a simpler system using pure Python.
 
-### async-await Coroutines
-By this time a good chunk of the team was ready to just write plain Python functions without any formal framework. This line of thinking heavily influenced our choice for a new framework. I had used a coroutine system before, in the form of C#'s `IEnumerator` and `yield` statements. Something similar was possible in Python using generators, but I opted to explore the possibility of using `async` and `await` to do something similar but better.
+## async-await Coroutines
+Post-RoboSub 2023, a good chunk of the team was ready to just write plain Python functions without a rigid framework.
 
 The guiding principles of this system were to:
 - Require minimal boilerplate and excess complexity above basic Python functions
 - Allow for using normal language structures (loops) for control flow
 
-At the time of writing, this system has yet to be fully tested, but I am optimistic about its likelihood of success. The basic principle is "functions but they can be paused and continued later". Calling a task returns a `TaskWrapper` object, which can be stepped through or run as a whole depending on your desires. Any `await Yield()` call causes the function to pause and return all the way back down to the lowest level where `.send()` or `.step()` has been called previously. This should allow tasks to be run in "parallel" without any actual parallelism.
+We chose to use coroutines. The basic principle is "functions that can be paused and continued later". Calling a task coroutine returns a `Task` object, which can be stepped through or run as a whole depending on your desires. Any `await Yield()` call causes the function to pause and return all the way back down to the lowest level where `.send()` or `.step()` has been called previously. This should allow tasks to be run in "parallel" without any actual parallelism.
 
-Additionally, you can yield specific values and send back in values through `.send()`, allowing for communication up and down the stack. However, this shouldn't be too complex for the end user (hopefully), as if you don't want to interact with the coroutine system, you can just put it in a box and think "I just put `await` whenever I call another task".
+Additionally, you can yield specific values and send back in values through `.send()`, allowing for communication up and down the stack. And, frequent yielding provides parent tasks fine-grained control over the child tasks.
 
-Anyway, conclusions is, fingers crossed, and if you are considering a new task planning framework in the future, make sure you aren't repeating the mistakes of the past.
+## Conclusion
+If you are considering a new task planning framework in the future, make sure you aren't repeating the mistakes of the past.
+
+Good luck!

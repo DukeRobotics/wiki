@@ -4,4 +4,5 @@
 - Software
     - Task Planning
         - [Introduction to Coroutines](task_planning/intro_to_coroutines.md)
+        - [Working with Coroutines](task_planning/working_with_coroutines.md)
         - [Task Planning Frameworks](task_planning/task_planning_frameworks.md)

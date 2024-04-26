@@ -39,6 +39,8 @@ Upload to this new Roboflow project:
 python roboflow_upload.py coco
 ```
 
+In Roboflow, generate a new dataset version. You can use the settings from previous years as a starting point.
+
 ## YOLO Training
 Export the dataset from Roboflow in the `YOLO v7 PyTorch` format and upload to the [cv-training](https://github.com/DukeRobotics/cv-training) repository. Use the provided Jupyter Notebook to train a YOLOv7-tiny model.
 

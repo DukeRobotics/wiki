@@ -32,7 +32,7 @@ python bbox_filter.py coco
 ```
 
 ## Roboflow Upload
-Create a new Roboflow project by duplicating a null images project. For example, for RoboSub 2024, we duplicated [null-images-base](https://universe.roboflow.com/duke-robotics-club-2024/null-images-base). The null images in `null-images-base` can be used in any underwater dataset to enhance model robustness.
+Create a new Roboflow project by duplicating a null images project. For example, for RoboSub 2024, we duplicated [null_images_base](https://universe.roboflow.com/duke-robotics-club-2024/null_images_base). The null images in `null_images_base` can be used in any underwater dataset to enhance model robustness.
 
 Upload to this new Roboflow project:
 ```bash
@@ -41,10 +41,13 @@ python roboflow_upload.py coco
 
 In Roboflow, generate a new dataset version. You can use the settings from previous years as a starting point.
 
-## YOLO Training
+## CV Training
+> [!NOTE]
+> For cv-training, only Ubuntu 22.04 LTS is officially supported. Also, ensure that you have a CUDA-enabled GPU.
+
 Use the [cv-training](https://github.com/DukeRobotics/cv-training) repository to download the Roboflow dataset and train a YOLOv7-tiny model.
 
-After training, upload the `.pt` weights file to [tools.luxonis.com](https://tools.luxonis.com). Choose `YoloV7` as the YOLO version and input `416` as the input image shape. Download the `.blob` file.
+After training, upload the `best.pt` weights file to [tools.luxonis.com](https://tools.luxonis.com). Choose `YoloV7` as the YOLO version and input `416` as the input image shape. Download the `.blob` file.
 
 ## DAI Camera Upload
 Upload the `.blob` file to [robosub-ros](https://github.com/DukeRobotics/robosub-ros). See the `cv` package README for details. Ensure that the appropiate configuration files are updated.

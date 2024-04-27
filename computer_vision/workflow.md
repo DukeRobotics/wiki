@@ -43,7 +43,7 @@ In Roboflow, generate a new dataset version. You can use the settings from previ
 
 ## CV Training
 > [!NOTE]
-> For cv-training, only Ubuntu 22.04 LTS is officially supported. Also, ensure you have a CUDA-enabled GPU.
+> For cv-training, only Ubuntu 22.04 LTS is officially supported. Also, ensure that you have a CUDA-enabled GPU.
 
 Use the [cv-training](https://github.com/DukeRobotics/cv-training) repository to download the Roboflow dataset and train a YOLOv7-tiny model.
 

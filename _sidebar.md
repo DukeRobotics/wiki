@@ -9,3 +9,6 @@
     - Computer Vision
         - [Workflow](computer_vision/workflow.md)
         - [DepthAI Camera Local Testing](computer_vision/depthai_camera_local_testing.md)
+
+- Other
+    - [Lab Computer Remote Desktop & SSH](other/lab_computer_remote_desktop_and_ssh.md)

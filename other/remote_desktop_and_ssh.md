@@ -39,9 +39,12 @@ To SSH in the traditional manner, you need to be on Duke's network.
 ## AnyDesk SSH
 
 You can also SSH through AnyDesk's TCP tunneling feature **without being on Duke's network**. The following steps work for both Windows and Ubuntu.
-1. Follow the steps [here](https://blog.anydesk.com/anydesk-tcp-tunneling/) to setup the TCP tunnel. The remote port must be 22, but the local port can be any one of your choosing.
-2. Start an AnyDesk remote session. **TCP tunnel will only work after the remote session has started.**
-3. Command
+1. If you don't have a paid AnyDesk license, this feature is not available on newer versions of AnyDesk. You can download older versions of AnyDesk here:
+    - [Windows](https://anydesk.en.uptodown.com/windows/versions)
+    - [Mac](https://anydesk.en.uptodown.com/mac/versions)
+2. Follow the steps [here](https://blog.anydesk.com/anydesk-tcp-tunneling/) to setup the TCP tunnel. The remote port must be 22, but the local port can be any one of your choosing.
+3. Start an AnyDesk remote session. **TCP tunnel will only work after the remote session has started.**
+4. Command
     - Lab Desktop: `ssh -p <LOCAL_PORT> drc@localhost` (same for Windows and Ubuntu)
     - Cthulhu: `ssh -p <LOCAL_PORT> robot@localhost`
 

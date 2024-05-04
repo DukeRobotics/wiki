@@ -1,4 +1,4 @@
-# Lab Computer Remote Desktop & SSH
+# Remote Desktop & SSH
 
 Remote Desktop and SSH have been setup on the lab desktop and Cthulhu's computer.
 

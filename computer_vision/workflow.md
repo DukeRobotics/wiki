@@ -47,7 +47,7 @@ In Roboflow, generate a new dataset version. You can use the settings from previ
 
 Use the [cv-training](https://github.com/DukeRobotics/cv-training) repository to download the Roboflow dataset and train a YOLOv7-tiny model.
 
-After training, upload the `best.pt` weights file to [tools.luxonis.com](https://tools.luxonis.com). Choose `YoloV7` as the YOLO version and input `416` as the input image shape. Download the `.blob` file.
+After training, upload the `best.pt` weights file to [tools.luxonis.com](https://tools.luxonis.com). Choose `YoloV7` as the YOLO version and input `416` as the input image shape. In advanced options, choose `8` shaves. Download the `.blob` file.
 
 ## DAI Camera Upload
 Upload the `.blob` file to [robosub-ros](https://github.com/DukeRobotics/robosub-ros). See the `cv` package README for details. Ensure that the appropiate configuration files are updated.

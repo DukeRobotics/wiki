@@ -1,13 +1,15 @@
-## Testing
+# Testing
 
-### Directory of `.mcap` and `.db3` file names
+We are currently using ROS2 version **JAZZY JALISCO**!
+
+## Directory of `.mcap` and `.db3` file names
 
 Anywhere you see `[folder_name]` in the instructions below when talking about robot recordings, replace it with:
 
 * CV:
     * For bins: `ros2_mcap_test` (`zip` file found [here](https://dukeroboticsclub.slack.com/archives/CFCGQL55K/p1730566049146299))
 
-### Setting Up `.mcap` or `.db3` files (do this once)
+## Setting Up `.mcap` or `.db3` files (do this once)
 
 1. Download the `.zip` file to somewhere on your computer
 2. Extract the folder somewhere
@@ -36,7 +38,7 @@ Anywhere you see `[folder_name]` in the instructions below when talking about ro
         >Service:           0
         >Service information:
         >```
-### Running Nodes
+## Running Nodes
 
 1. Open another terminal
 2. Run the following command:
@@ -46,7 +48,7 @@ Anywhere you see `[folder_name]` in the instructions below when talking about ro
     - e.g., `ros2 run cv depthai_spatial_detection`.
 3. Repeat steps 1-2 for every node you would like to run.
 
-### Running `.mcap` or `.db3` files
+## Running `.mcap` or `.db3` files
 
 If you are using a previously-recorded data file from the robot, run the following command in a new terminal:
 
@@ -54,7 +56,7 @@ If you are using a previously-recorded data file from the robot, run the followi
 ros2 bag play bag_files/[folder_name] -l
 ```
 
-### Running Foxglove
+## Running Foxglove
 
 Follow this process for when you want to test and view topics in Foxglove:
 
@@ -71,7 +73,7 @@ Follow this process for when you want to test and view topics in Foxglove:
     ```
 6. Click **Open**
 
-### Viewing Stuff on Foxglove
+## Viewing Stuff on Foxglove
 
 First, click on **LAYOUT** (it is in small grey text, with a layout name in larger white text below, on the top right hand side).
 

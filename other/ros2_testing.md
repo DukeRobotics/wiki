@@ -22,7 +22,7 @@ Anywhere you see `[folder_name]` in the instructions below when talking about ro
 6. To double check that the file is formatted properly, `cd` back into the `bag_files` directory, then run the `info` command on the folder:
     ```bash
     cd ../
-    bash ros2 bag info [folder_name]
+    ros2 bag info [folder_name]
     ```
     - You can check the output is reasonable. An example of an output for a file with one node is given below:
         >```

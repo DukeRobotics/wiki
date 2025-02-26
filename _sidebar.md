@@ -11,5 +11,6 @@
         - [DepthAI Camera Local Testing](computer_vision/depthai_camera_local_testing.md)
 
 - Other
+    - [DHCP Server](other/dhcp_server.md)
     - [Remote Desktop & SSH](other/remote_desktop_and_ssh.md)
     - [ROS2 Testing](other/ros2_testing.md)

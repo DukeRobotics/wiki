@@ -78,7 +78,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 ```
 
 ### `/etc/default/isc-dhcp-server`
-This file contains the configuration for the DHCP server service. It can be left with the default settings. You do not need to specify the interfaces here because they are defined in `/etc/network/interfaces`.
+This file contains the configuration for the DHCP server service. Add the network interface used for the DHCP server to the `INTERFACESv4` field.
 ```conf
 # Defaults for isc-dhcp-server (sourced by /etc/init.d/isc-dhcp-server)
 
@@ -96,7 +96,7 @@ This file contains the configuration for the DHCP server service. It can be left
 
 # On what interfaces should the DHCP server (dhcpd) serve DHCP requests?
 #	Separate multiple interfaces with spaces, e.g. "eth0 eth1".
-INTERFACESv4=""
+INTERFACESv4="enp2s0"  # Include the network interface used for the DHCP server here
 INTERFACESv6=""
 ```
 
@@ -160,7 +160,14 @@ To see if the DHCP server is running, you can check the status using the followi
 sudo systemctl status isc-dhcp-server
 ```
 
+You can also check the DHCP server logs for any errors or warnings:
+```bash
+sudo journalctl -xefu isc-dhcp-server
+```
+
 ## Change the IP Address
 To change the IP address of the robot or the IP address range assigned by the DHCP server, you need to modify the following files:
 - `/etc/dhcp/dhcpd.conf`: Change the IP addresses in the `domain-name-servers`, `routers`, `range`, and `subnet` fields.
 - `/etc/network/interfaces`: Change the IP address in the `address` field.
+
+After making the changes, reboot the robot to apply the new configuration. Disconnect/reconnect or power cycle all devices connected to the local network to ensure they receive new IP addresses.

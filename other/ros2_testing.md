@@ -62,14 +62,14 @@ Follow this process for when you want to test and view topics in Foxglove:
 
 1. In a new terminal, run:
     ```bash
-    ros2 launch foxglove_bridge foxglove_bridge_launch.xml
+    fg-ws
     ```
 2. Open **Foxglove Studio**
 3. Click on the **Foxglove logo** (in the top left-hand corner, the purple hexagonal shape)
 4. Click on **Open Connection**.
 5. Ensure **Foxglove Websocket** is selected, and in the **WebSocket URL** field put
     ```ini
-    ws://localhost:8765
+    ws://localhost:28765
     ```
 6. Click **Open**
 
@@ -79,7 +79,7 @@ First, click on **LAYOUT** (it is in small grey text, with a layout name in larg
 
 If you have a layout file that you would like to use (ask whoever is managing your migration about if this is the case), click on **Import from file...** and select the layout.
 
-Otherwise, you can create a new layout. Search for an appropriate panel type (again, ask whoever is managing your migration), and click on it. That should automatically add a panel of the specified type, and you can add more panels by clicking on the **Add panel** icon (it is in the top left corner, immediately to the left of the Foxglove icon, where you originally connected to `ws://localhost:8765`; it looks like a white rectangle with a + icon in the bottom right of the rectangle).
+Otherwise, you can create a new layout. Search for an appropriate panel type (again, ask whoever is managing your migration), and click on it. That should automatically add a panel of the specified type, and you can add more panels by clicking on the **Add panel** icon (it is in the top left corner, immediately to the left of the Foxglove icon, where you originally connected to `ws://localhost:28765`; it looks like a white rectangle with a + icon in the bottom right of the rectangle).
 
 To remove a panel, click the three vertical dots in the top right hand corner and then **Remove panel**. To change the topic the panel is subscribed to, click on the settings/gear icon in the top right hand corner (immediately to the left of the three vertical dots), and under the **Panel** tab in the **General** section, you should see a dropdown titled **Topic**. Click on the dropdown and select the desired panel.
 

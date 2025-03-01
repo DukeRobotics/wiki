@@ -5,7 +5,7 @@ The Dynamic Host Configuration Protocol (DHCP) server is a service that automati
 
 The robot acts as the DHCP server for the local network. As the server, the robot itself is assigned a static IP address, and it assigns IP addresses to other devices on the network.
 
-The sections below describe how to set up the DHCP server on the robot. The instructions were tested on Ubuntu 20.04 and 24.04.
+The sections below describe how to set up the DHCP server on the robot. The instructions were tested on Ubuntu 22.04 and 24.04.
 
 > [!WARNING]
 > Changing the network configuration on Linux can be very tricky and error-prone. Make sure you have plenty of time to troubleshoot any issues that may arise.

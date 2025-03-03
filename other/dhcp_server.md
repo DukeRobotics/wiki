@@ -5,7 +5,7 @@ The Dynamic Host Configuration Protocol (DHCP) server is a service that automati
 
 The robot acts as the DHCP server for the local network. As the server, the robot itself is assigned a static IP address, and it assigns IP addresses to other devices on the network.
 
-The sections below describe how to set up the DHCP server on the robot. The instructions were tested on Ubuntu 20.04 and 24.04.
+The sections below describe how to set up the DHCP server on the robot. The instructions were tested on Ubuntu 22.04 and 24.04.
 
 > [!WARNING]
 > Changing the network configuration on Linux can be very tricky and error-prone. Make sure you have plenty of time to troubleshoot any issues that may arise.
@@ -31,13 +31,7 @@ ifconfig
 Look for the interface that corresponds to the ethernet port (e.g., `enp2s0`, `eth0`). This interface will be used in the configuration files.
 
 ## Configuration
-There are four files that need to be configured to set up the DHCP server:
-1. `/etc/dhcp/dhcpd.conf`
-2. `/etc/default/isc-dhcp-server`
-3. `/etc/NetworkManager/NetworkManager.conf`
-4. `/etc/network/interfaces`
-
-The following sections describe the configuration of each file. They show an example configuration of the `enp2s0` interface where the robot has a static IP of `192.168.1.1` and the DHCP server assigns IP addresses in the range `192.168.1.0/24`.
+The following sections describe the configuration of each file that needs to be modified to set up the DHCP server. They show an example configuration of the `enp2s0` interface where the robot has a static IP of `192.168.1.1` and the DHCP server assigns IP addresses in the range `192.168.1.0/24`.
 
 ### `/etc/dhcp/dhcpd.conf`
 This file contains the configuration for the DHCP server. The following is an example configuration:
@@ -137,15 +131,30 @@ address 192.168.1.1
 netmask 255.255.255.0
 ```
 
+### `/etc/systemd/system/isc-dhcp-server.service.d/override.conf`
+This file contains the override configuration for the DHCP server service. It ensures that the DHCP server service starts after the network interfaces are up so it doesn't crash on boot. You may need to create the `override.conf` file and the `isc-dhcp-server.service.d` directory if they do not exist.
+```conf
+[Unit]
+After=network-online.target
+Wants=network-online.target
+```
+
 ## Enabling the DHCP Server
-After configuring the files, you need to enable the DHCP server service. Run the following commands:
+After configuring the files, you need to enable a few services so they automatically run when the robot boots up. Run the following commands.
+
+Enable `isc-dhcp-server`:
 ```bash
 sudo systemctl enable isc-dhcp-server
 ```
 
-Also, enable NetworkManager to manage the network interfaces:
+Enable `NetworkManager` to manage the network interfaces:
 ```bash
 sudo systemctl enable NetworkManager
+```
+
+Enable `NetworkManager-wait-online.service` to wait for the network interfaces to be up before starting the DHCP server:
+```bash
+sudo systemctl enable NetworkManager-wait-online.service
 ```
 
 Finally, reboot the robot to apply the changes:
@@ -164,6 +173,7 @@ You can also check the DHCP server logs for any errors or warnings:
 ```bash
 sudo journalctl -xefu isc-dhcp-server
 ```
+If `journalctl` does not display any messages, the DHCP server has not started yet. After a few minutes, you should see log messages indicating that the DHCP server is running.
 
 ## Change the IP Address
 To change the IP address of the robot or the IP address range assigned by the DHCP server, you need to modify the following files:

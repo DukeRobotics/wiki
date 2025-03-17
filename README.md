@@ -4,7 +4,7 @@ Welcome to the Duke Robotics Club Wiki! This is a place for us to document our p
 
 This site is built using [Docsify](https://docsify.js.org/#/). To view it locally, install the Docsify CLI using `npm install -g docsify-cli` and then run `docsify serve` in the root directory of this repository. You can then view the site at `localhost:3000`.
 
-All content on the `main` branch is automatically deployed to [dukerobotics.github.io/wiki](https://dukerobotics.github.io/wiki).
+All content on the `main` branch is automatically deployed to [wiki.duke-robotics.com](https://wiki.duke-robotics.com).
 
 ## Contributing
 

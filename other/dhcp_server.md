@@ -157,6 +157,11 @@ Enable `NetworkManager-wait-online.service` to wait for the network interfaces t
 sudo systemctl enable NetworkManager-wait-online.service
 ```
 
+Disable `systemd-networkd` to prevent conflicts with `NetworkManager`:
+```bash
+sudo systemctl disable systemd-networkd
+```
+
 Finally, reboot the robot to apply the changes:
 ```bash
 sudo reboot

@@ -69,7 +69,7 @@ Then, move the `best.pt` file into the tools folder, and run the following comma
 cd tools
 # Install the package 
 pip install .
-# Running the package 
+# Run the package 
 tools best.pt --imgsz "416"
 ```
 

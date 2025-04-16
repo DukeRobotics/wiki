@@ -47,7 +47,39 @@ In Roboflow, generate a new dataset version. You can use the settings from previ
 
 Use the [cv-training](https://github.com/DukeRobotics/cv-training) repository to download the Roboflow dataset and train a YOLOv7-tiny model.
 
+### Online `.blob` File Generation
+
 After training, upload the `best.pt` weights file to [tools.luxonis.com](https://tools.luxonis.com). Choose `YoloV7` as the YOLO version and input `416` as the input image shape. Download the `.blob` file.
+
+### Alternative `.blob` File Generation Using `ONNX`
+
+Alternatively, if the Luxonis website is not working, you can run and install the conversion tool locally.
+
+
+First, check the repositories folder of your machine for `tools` (or related name, e.g., `tools-main`). If the folder exists, skip the next command and continue with the `cd` command; if not, run the following command:
+
+```bash
+# Cloning the tools repository and all submodules
+git clone --recursive https://github.com/luxonis/tools.git
+```
+
+Then, move the `best.pt` file into the tools folder, and run the following commands:
+```bash
+# Change folder
+cd tools
+# Install the package 
+pip install .
+# Run the package 
+tools best.pt --imgsz "416"
+```
+
+Then, go to [blobconverter.luxonis.com](https://blobconverter.luxonis.com). Ensure `2022.1` (DepthAI default) is selected for OpenVino Version, and select `ONNX` for Choose Model Source. Upload the `.onnx` file output from the previous command line commands, and click `Convert`. Download the `.blob` file if it does not automatically download.
+
+If the website is not working, try using the following parameters:
+1. Model optimizer params: `--data_type=FP16 --mean_values=[127.5,127.5,127.5] --scale_values=[255,255,255]`
+2. Compile parameters: `-ip U8`
+3. Shaves: `4`
+
 
 ## DAI Camera Upload
 Upload the `.blob` file to [robosub-ros](https://github.com/DukeRobotics/robosub-ros). See the `cv` package README for details. Ensure that the appropiate configuration files are updated.
